@@ -8,7 +8,7 @@
 
 * Initial release of the ONDEWO SURVEY (Survey) gRPC client for Go. The module
   ships the stubs generated from the [ONDEWO SURVEY API](https://github.com/ondewo/ondewo-survey-api)
-  by version 5.15.0 of the
+  by version 5.15.1 of the
   [ONDEWO Proto Compiler](https://github.com/ondewo/ondewo-proto-compiler): one `*.pb.go` of
   messages and one `*_grpc.pb.go` of service stubs per `.proto` — 4 files from 2 protos, below
   `api/ondewo/survey/` — compiled against the `google.golang.org/protobuf` and
