@@ -2,6 +2,28 @@
 
 *****************
 
+## Release ONDEWO SURVEY Go Client 2.1.1
+
+### New Features
+
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) Keycloak authentication: the new `auth.KeycloakTokenProvider` and `client.Config`'s Keycloak fields (`RefreshToken` last), validated before any network I/O and redacted in every rendering; `NewChannel` attaches the shared provider of the credential set to every call.
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) Offline-token start-up: with `RefreshToken` set the provider starts with one `grant_type=refresh_token` exchange and never sends a password grant, not even as a fallback. Providers are shared per credential set by a SHA-256 of the credentials.
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) Tests: the cross-SDK Keycloak test catalogue (T01-T62) with a fake token endpoint and clock.
+
+### Bug Fixes
+
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) Keycloak token refresh: a failed refresh no longer ends the refresh. Every failure kind (a 5xx from a proxy, a DNS or connection failure, a restarting Keycloak, a dead offline session) is retried with full-jitter exponential backoff, 5 s doubling up to 300 s and measured from the moment the failure was recorded; the lazy `PerRPCCredentials` path and the background refresher share one lock and that backoff. A success resets the backoff.
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) A token that is still valid keeps being served when its refresh fails inside the 30 s expiry leeway; only an EXPIRED token raises, and it raises a typed Keycloak authentication error whatever failed underneath (transport error, non-2xx status, a body that is not JSON or not a JSON object, a missing `access_token`, a non-numeric `expires_in`), with the original error kept as its cause. A malformed response changes no provider state. Concurrent callers share one in-flight refresh, so an outage costs one token request, not one per call.
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) A token response without an `access_token` is reported by its field names only, never by its values (a token response is credential material), and a quoted Keycloak error body is cut at 500 characters.
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) An error is named by its bare type in logs and errors, as the python SDK does.
+
+### Improvements
+
+* [[OND236-120]](https://ondewo.atlassian.net/browse/OND236-120) The same Keycloak behaviour as every ONDEWO SDK (the python SDKs are the reference, ondewo-survey-client-python 2.1.1 ships the same fixes): the token request is bounded by a 10 s timeout, durations use a monotonic clock, the `tokenExpirationInS` window is armed on both start-up paths, each failed refresh logs one WARNING with the attempt number, the retry delay and how long the current token stays valid, and the first success afterwards one INFO. No credential appears in any log line, error or rendering of the configuration.
+* Tracking API Version [2.1.0](https://github.com/ondewo/ondewo-survey-api/releases/tag/2.1.0) ( [Documentation](https://ondewo.github.io/ondewo-survey-api/) ), generated with ondewo-proto-compiler 5.17.0: the generated code is unchanged from 2.1.0
+
+*****************
+
 ## Release ONDEWO SURVEY Go Client 2.1.0
 
 ### Improvements
